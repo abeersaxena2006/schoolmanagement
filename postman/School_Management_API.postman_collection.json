@@ -1,0 +1,125 @@
+{
+  "info": {
+    "name": "School Management API",
+    "_postman_id": "school-mgmt-collection-v1",
+    "description": "Collection for the School Management API — Add School & List Schools endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string",
+      "description": "Change to your deployed host when testing against production."
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] },
+        "description": "Verify the API is running."
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"status\": \"ok\",\n  \"message\": \"School Management API is running\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Add School — Success",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/addSchool", "host": ["{{baseUrl}}"], "path": ["addSchool"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Delhi Public School\",\n  \"address\": \"Mathura Road, New Delhi, 110003\",\n  \"latitude\": 28.5494,\n  \"longitude\": 77.2667\n}"
+        },
+        "description": "Add a new school. All four fields are required."
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"success\": true,\n  \"message\": \"School added successfully.\",\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Delhi Public School\",\n    \"address\": \"Mathura Road, New Delhi, 110003\",\n    \"latitude\": 28.5494,\n    \"longitude\": 77.2667\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Add School — Validation Error",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/addSchool", "host": ["{{baseUrl}}"], "path": ["addSchool"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\",\n  \"address\": \"Some Road\",\n  \"latitude\": 999,\n  \"longitude\": 77.2667\n}"
+        },
+        "description": "Demonstrates validation errors for empty name and out-of-range latitude."
+      },
+      "response": [
+        {
+          "name": "400 Bad Request",
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"success\": false,\n  \"errors\": [\n    \"name must be a non-empty string.\",\n    \"latitude must be between -90 and 90.\"\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "List Schools — Sorted by Distance",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/listSchools?latitude=28.6139&longitude=77.2090",
+          "host": ["{{baseUrl}}"],
+          "path": ["listSchools"],
+          "query": [
+            { "key": "latitude",  "value": "28.6139", "description": "User's latitude"  },
+            { "key": "longitude", "value": "77.2090", "description": "User's longitude" }
+          ]
+        },
+        "description": "Returns all schools sorted by distance (km) from the given coordinates."
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"id\": 2,\n      \"name\": \"Modern School\",\n      \"address\": \"Barakhamba Road, New Delhi, 110001\",\n      \"latitude\": 28.6314,\n      \"longitude\": 77.2204,\n      \"distance_km\": 2.3451\n    },\n    {\n      \"id\": 1,\n      \"name\": \"Delhi Public School\",\n      \"address\": \"Mathura Road, New Delhi, 110003\",\n      \"latitude\": 28.5494,\n      \"longitude\": 77.2667,\n      \"distance_km\": 9.8713\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "List Schools — Missing Params",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/listSchools",
+          "host": ["{{baseUrl}}"],
+          "path": ["listSchools"]
+        },
+        "description": "Omitting latitude/longitude returns a validation error."
+      },
+      "response": [
+        {
+          "name": "400 Bad Request",
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"success\": false,\n  \"errors\": [\n    \"Query param latitude must be a valid number.\",\n    \"Query param longitude must be a valid number.\"\n  ]\n}"
+        }
+      ]
+    }
+  ]
+}
